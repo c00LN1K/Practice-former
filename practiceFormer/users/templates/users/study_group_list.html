@@ -1,0 +1,21 @@
+{% include 'base.html' %}
+
+
+{% block content %}
+
+<h1>Группы</h1>
+{% if not groups %}
+    <p>Ни одной группы пока не создано
+{% else %}
+    {% for group in groups %}
+        <a href="{{ group.get_absolute_url }}">{{ group.name }}</a>
+    {% endfor %}
+{% endif %}
+
+<h2>Создать группу</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Создать</button>
+</form>
+{% endblock %}

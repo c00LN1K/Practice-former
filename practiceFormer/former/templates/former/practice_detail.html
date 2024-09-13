@@ -1,0 +1,22 @@
+{% include 'base.html' %}
+
+{% block content %}
+<h1>{{title}}:</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Обновить</button>
+</form>
+<br>
+{% if practice.director == user %}
+  <form action="{% url 'former:practice-admins' practice.pk %}">
+    <button type="submit">Изменить админов </button>
+  </form>
+
+{% endif %}
+<br>
+<form method="post" action="{% url 'former:practice-destroy' practice.pk %}">
+    {% csrf_token %}
+    <button type="submit">Удалить</button>
+</form>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% include 'base.html' %}
+
+{% block content %}
+<h1>Группа:</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Обновить</button>
+</form>
+<br>
+<form method="post" action="{% url 'users:group-destroy' group.pk %}">
+    {% csrf_token %}
+    <button type="submit">Удалить</button>
+</form>
+{% endblock %}

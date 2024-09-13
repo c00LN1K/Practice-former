@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{title}}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}"/>
+        {{form.as_p}}
+    <p>
+        <button type="submit">Принять</button>
+    </p>
+</form>
+
+<form method="post" action="{% url 'users:logout' %}">
+    {% csrf_token %}
+    <button type="submit">Exit</button>
+
+</form>
+
+{% endblock %}

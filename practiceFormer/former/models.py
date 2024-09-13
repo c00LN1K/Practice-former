@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.urls import reverse
 
 from practiceFormer.models import BaseModel
 from users.models import StudyGroup
@@ -11,10 +12,13 @@ class Practice(BaseModel):
     period = models.CharField(verbose_name='Период практики', max_length=30)
     group = models.ForeignKey(to=StudyGroup, on_delete=models.CASCADE, verbose_name='Группа')
     director = models.ForeignKey(
-        to=get_user_model(), on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Руководитель'
+        to=get_user_model(), on_delete=models.DO_NOTHING, verbose_name='Руководитель'
     )
-    additional = models.TextField(verbose_name='Дополнительная информация')
+    additional = models.TextField(verbose_name='Дополнительная информация', blank=True)
     admins = ArrayField(base_field=models.BigIntegerField())
+
+    def get_absolute_url(self):
+        return reverse('former:practice-detail', args=(self.pk, ))
 
     # Сделать валидацию на уникальные значения в admin (метод clean or save or validate)
 
