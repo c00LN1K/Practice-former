@@ -1,22 +1,19 @@
 {% include 'base.html' %}
 
 {% block content %}
-<h1>{{title}}:</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Обновить</button>
-</form>
+<h1>{{title}} - {{practice.period}} - {{practice.group.name}}</h1>
+{% if is_admin %}
+    <form action="{% url 'former:practice-admin' practice.pk %}">
+        <button type="submit">Настройки администратора</button>
+    </form>
+{% endif %}
+{% endblock %}
 <br>
-{% if practice.director == user %}
-  <form action="{% url 'former:practice-admins' practice.pk %}">
-    <button type="submit">Изменить админов </button>
-  </form>
-
+{% if not user_practices %}
+    <p>Нет пока ни одной созданной записи (добавьте пользователей и поля в настройках администратора)</p>
+{% else %}
+    {% for user_practice in user_practices %}
+        <a href="{{ user_practice.get_absolute_url }}">{{user_practice.user.first_name}} {{user_practice.user.second_name}}</a>
+    {% endfor %}
 {% endif %}
 <br>
-<form method="post" action="{% url 'former:practice-destroy' practice.pk %}">
-    {% csrf_token %}
-    <button type="submit">Удалить</button>
-</form>
-{% endblock %}

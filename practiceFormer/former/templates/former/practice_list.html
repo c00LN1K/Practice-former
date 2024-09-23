@@ -3,19 +3,21 @@
 
 {% block content %}
 
-<h1>{{title}}</h1>
-{% if not practices %}
-    <p>Ни одной практики пока не создано
-{% else %}
-    {% for practice in practices %}
-        <a href="{{ practice.get_absolute_url }}">{{ practice.period }}</a>
-    {% endfor %}
-{% endif %}
+<h2>Практики для вас</h2>
+    {% if not practices %}
+        <p>Пока нет ни одной практики
+    {% else %}
+            {% for practice in practices %}
+            <p><a href="{{ practice.get_absolute_url }}">{{ practice.title }}</a></p>
+        {% endfor %}
+    {% endif %}
 
+{% if is_tutor %}
 <h2>Создать практику</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Создать</button>
 </form>
+{% endif %}
 {% endblock %}

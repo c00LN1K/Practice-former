@@ -21,9 +21,12 @@ class User(AbstractUser, BaseModel):
     phone = models.CharField(verbose_name='Номер телефона', max_length=12, blank=True)
     role = models.IntegerField(verbose_name='Должность', choices=Role.choices, default=Role.STUDENT)
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 class StudyGroup(BaseModel):
     name = models.CharField(verbose_name='Название')
-    leader = models.ForeignKey(verbose_name='Староста', to=User, on_delete=models.SET_NULL, blank=True, null=True, max_length=50)
+    leader = models.OneToOneField(verbose_name='Староста', to=User, on_delete=models.SET_NULL, blank=True, null=True, max_length=50, related_name='group_leader')
     faculty = models.CharField(verbose_name='Факультет', max_length=50, blank=True)
     subject = models.CharField(verbose_name='Направление', blank=True, max_length=50)
     start_time = models.PositiveIntegerField(verbose_name='Год поступления', blank=True)
@@ -31,3 +34,6 @@ class StudyGroup(BaseModel):
 
     def get_absolute_url(self):
         return reverse('users:group-detail', args=(self.pk,))
+
+    def __str__(self):
+        return f'{self.name}'

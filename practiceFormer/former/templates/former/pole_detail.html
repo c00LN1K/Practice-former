@@ -1,0 +1,17 @@
+{% include 'base.html' %}
+
+{% block content %}
+<h1>{{title}}:</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Обновить</button>
+</form>
+<br>
+{% if pole.author == user %}
+    <form method="post" action="{% url 'former:pole-destroy' pole.pk %}">
+        {% csrf_token %}
+        <button type="submit">Удалить</button>
+    </form>
+{% endif %}
+{% endblock %}

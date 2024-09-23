@@ -132,5 +132,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = 'users:group-list'
+LOGIN_REDIRECT_URL = 'former:main'
 LOGIN_URL = LOGOUT_REDIRECT_URL = 'users:login'

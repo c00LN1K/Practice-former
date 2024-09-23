@@ -59,6 +59,8 @@ class LoginUser(LoginView):
 
 
 def register_user(request):
+    if request.user.is_authenticated:
+        return redirect(reverse('users:login'))
     if request.method == 'POST':
         form = RegisterUserForm(request.POST)
         if form.is_valid():

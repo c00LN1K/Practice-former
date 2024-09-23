@@ -1,0 +1,56 @@
+{% include 'base.html' %}
+{% block content %}
+<h1>{{title}}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Обновить</button>
+</form>
+<h2>Поля</h2>
+{% if not poles_form %}
+<p>Ни одно поле не добавлено</p>
+{% else %}
+<form method="post" action="{% url 'former:practice-poles' practice.pk %}">
+    {% csrf_token %}
+    {{ poles_form.as_p }}
+    <button type="submit">Изменить</button>
+</form>
+{% endif %}
+
+
+<h2>Пользователи</h2>
+{% if not users_form %}
+<p>Ни один пользователь не добавлен</p>
+{% else %}
+<form method="post" action="{% url 'former:practice-users' practice.pk %}">
+    {% csrf_token %}
+    {{ users_form.as_p }}
+    <button type="submit">Изменить</button>
+</form>
+{% endif %}
+
+
+{% if admins_form %}
+<form method="post" action="{% url 'former:practice-admins' practice.pk %}">
+    {% csrf_token %}
+    <h2>Администраторы</h2>
+    {{ admins_form.as_p }}
+    <p>
+        <button type="submit">Изменить</button>
+    </p>
+</form>
+{% endif %}
+
+<form action="{{ practice.get_absolute_url }}">
+    <button type="submit">Назад</button>
+</form>
+
+
+<!--{% if user == practice.director %}-->
+<!--<form method="post" action="{% url 'former:practice-destroy' practice.pk %}">-->
+<!--    {% csrf_token %}-->
+<!--    <button type="submit">Удалить</button>-->
+<!--</form>-->
+<!--{% endif %}-->
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% include 'base.html' %}
+
+
+{% block content %}
+
+<h1>{{title}}</h1>
+{% if not poles %}
+    <p>Ни одного поля пока не создано
+{% else %}
+    {% for pole in poles %}
+        <a href="{{ pole.get_absolute_url }}">{{ pole.name }}</a>
+    {% endfor %}
+{% endif %}
+
+<h2>Создать поле</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Создать</button>
+</form>
+{% endblock %}

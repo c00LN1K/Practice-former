@@ -1,0 +1,18 @@
+{% include 'base.html' %}
+
+{% block content %}
+<h1>{{title}}:</h1>
+{% if not form %}
+    <p>Ни одно поля пока не добавлено</p>
+{% else %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Обновить</button>
+    </form>
+{% endif %}
+<br>
+<form action="{% url 'former:practice-detail' user_practice.practice_id %}">
+    <button type="submit">Назад</button>
+</form>
+{% endblock %}
