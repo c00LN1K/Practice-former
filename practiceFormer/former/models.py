@@ -22,7 +22,6 @@ class Practice(BaseModel):
     def get_absolute_url(self):
         return reverse('former:practice-detail', args=(self.pk,))
 
-    # Сделать валидацию на уникальные значения в admin (метод clean or save or validate)
 
 
 class UserPractice(BaseModel):

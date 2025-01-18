@@ -5,11 +5,14 @@
 
 <h1>{{title}}</h1>
 {% if not poles %}
-    <p>Ни одного поля пока не создано
-{% else %}
+<p>Ни одного поля пока не создано
+    {% else %}
+<ul>
     {% for pole in poles %}
-        <a href="{{ pole.get_absolute_url }}">{{ pole.name }}</a>
+    <li><a href="{{ pole.get_absolute_url }}">{{ pole.name }}</a></li>
+
     {% endfor %}
+</ul>
 {% endif %}
 
 <h2>Создать поле</h2>

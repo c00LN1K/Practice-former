@@ -10,7 +10,25 @@
 </head>
 <body>
 {% block mainmenu %}
-{% endblock mainmenu %}
+<div class="header">
+    <ul id="mainmenu" class="mainmenu">
+        {% for k, v in menu.items %}
+        <li><a href="{{v}}">{{k}}</a></li>
+        {% endfor %}
+        {% if user.is_authenticated %}
+        <li class="last"> <a href="{% url 'users:login' %}">{{user.username}}</a> |
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+            <button type="submit">Выйти</button>
+            </form>
+        </li>
+        {% else %}
+        <li class="last"><a href="{% url 'users:login' %}">Войти</a> | <a href="{% url 'users:register' %}">Регистрация</a></li>
+        {% endif %}
+    </ul>
+    <div class="clear"></div>
+</div>
+{% endblock %}
 {% include 'includes/show_messages.html' %}
 {% block content %}
 {% endblock %}

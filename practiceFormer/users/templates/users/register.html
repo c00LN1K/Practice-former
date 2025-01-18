@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{title}}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-error">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    {% if f.id_for_label != "id_group" %}
+    <label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: </label>{{ f }}</p>
+    {% else %}
+    <div id="group_field">
+        <label class="form-label" for="{{ f.id_for_label }}">{{f.label}}: </label>{{ f }}</p>
+    </div>
+    {% endif %}
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <p>
+        <button type="submit">Принять</button>
+    </p>
+</form>
+<script>
+    const choiceField = document.getElementById('id_role');
+    const extraField = document.getElementById('group_field');
+    const tutor = "{{ tutor }}";
+
+    choiceField.addEventListener('change', function () {
+        if (choiceField.value === tutor) {
+            extraField.style.display = 'none';
+        } else {
+            extraField.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

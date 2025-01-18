@@ -13,7 +13,9 @@
     <p>Нет пока ни одной созданной записи (добавьте пользователей и поля в настройках администратора)</p>
 {% else %}
     {% for user_practice in user_practices %}
-        <a href="{{ user_practice.get_absolute_url }}">{{user_practice.user.first_name}} {{user_practice.user.second_name}}</a>
+        <p><a href="{{ user_practice.get_absolute_url }}">{{user_practice.user.first_name}} {{user_practice.user.second_name}}</a></p>
     {% endfor %}
 {% endif %}
+<br>
+<p><a href="{% url 'former:practice-export' practice.pk %}">Экспортировать в excel</a></p>
 <br>

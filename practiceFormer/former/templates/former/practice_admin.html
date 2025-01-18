@@ -41,16 +41,18 @@
 </form>
 {% endif %}
 
+<br>
 <form action="{{ practice.get_absolute_url }}">
     <button type="submit">Назад</button>
 </form>
 
 
-<!--{% if user == practice.director %}-->
-<!--<form method="post" action="{% url 'former:practice-destroy' practice.pk %}">-->
-<!--    {% csrf_token %}-->
-<!--    <button type="submit">Удалить</button>-->
-<!--</form>-->
-<!--{% endif %}-->
+{% if user == practice.director %}
+<br><br>
+<form method="post" action="{% url 'former:practice-finish' practice.pk %}">
+    {% csrf_token %}
+    <button type="submit">Закончить</button>
+</form>
+{% endif %}
 
 {% endblock %}

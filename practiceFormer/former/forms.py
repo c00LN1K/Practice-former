@@ -1,5 +1,3 @@
-from bisect import insort
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -24,7 +22,7 @@ class PracticeCreateForm(forms.ModelForm):
         self.fields['director'].queryset = get_user_model().objects.filter(role=get_user_model().Role.TUTOR)
         self.fields['poles'].queryset = Pole.objects.filter(
             Q(type=Pole.PoleType.SYSTEM) | Q(author=getattr(self.request, 'user', None))
-        )
+        ).order_by('type', 'name')
         if not self.fields['poles'].queryset:
             self.fields['poles'].label = ''
 
@@ -102,7 +100,8 @@ class PracticeUsersForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.fields['users'].queryset = get_user_model().objects.filter(group=getattr(self.instance, 'group', None))
+        self.fields['users'].queryset = get_user_model().objects.filter(
+            group=getattr(self.instance, 'group', None)).order_by('second_name', 'first_name')
         self.fields['users'].initial = (
             UserPractice.objects.filter(practice=self.instance, is_active=True).values_list('user_id', flat=True)
         )
@@ -112,7 +111,13 @@ class PracticeUsersForm(forms.ModelForm):
         users = self.cleaned_data['users']
         UserPractice.objects.filter(practice=instance).update(is_active=False)
         if users:
-            UserPractice.objects.filter(practice=instance, user__in=users).update(is_active=True)
+            user_practice_bulk_update = []
+            for user in users:
+                obj, created = UserPractice.objects.get_or_create(user=user, practice=instance)
+                obj.is_active = True
+                user_practice_bulk_update.append(obj)
+            UserPractice.objects.bulk_update(user_practice_bulk_update, ['is_active'])
+            # UserPractice.objects.filter(practice=instance, user__in=users).update(is_active=True)
         return instance
 
 
@@ -131,25 +136,34 @@ class PracticePolesForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['poles'].queryset = Pole.objects.filter(
             Q(type=Pole.PoleType.SYSTEM) | Q(author=getattr(self.request, 'user', None))
-        )
+        ).order_by('type', 'name')
         self.fields['poles'].initial = (
             PracticePole.objects.filter(practice=self.instance, is_active=True).values_list('pole_id', flat=True)
         )
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
+        # TODO: Исправить баг - можно создавать поля практики с одинаковым названием, а отображаться в форме пользователя будет все равно одно поле (так как берется имя поля)
         poles = self.cleaned_data['poles']
         PracticePole.objects.filter(practice=instance).update(is_active=False)
-        PracticePole.objects.filter(practice=instance, pole__in=poles).update(is_active=True)
-        practice_poles = {
-            practice_pole.pole: practice_pole
-            for practice_pole in PracticePole.objects.filter(practice=instance, is_active=True).select_related('pole')
-        }
-        create_objs = []
-        for pole in poles:
-            if pole not in practice_poles:
-                create_objs.append(PracticePole(pole=pole, practice=instance))
-        PracticePole.objects.bulk_create(create_objs)
+        if poles:
+            pole_practice_bulk_update = []
+            for pole in poles:
+                obj, created = PracticePole.objects.get_or_create(pole=pole, practice=instance)
+                obj.is_active = True
+                pole_practice_bulk_update.append(obj)
+            PracticePole.objects.bulk_update(pole_practice_bulk_update, ['is_active'])
+
+            # PracticePole.objects.filter(practice=instance, pole__in=poles).update(is_active=True)
+            # practice_poles = {
+            #     practice_pole.pole: practice_pole
+            #     for practice_pole in PracticePole.objects.filter(practice=instance, is_active=True).select_related('pole')
+            # }
+            # create_objs = []
+            # for pole in poles:
+            #     if pole not in practice_poles:
+            #         create_objs.append(PracticePole(pole=pole, practice=instance))
+            # PracticePole.objects.bulk_create(create_objs)
         return instance
 
 
@@ -169,16 +183,16 @@ class PracticeAdminsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # TODO: Fix getting leader
         self.fields['admins'].queryset = get_user_model().objects.filter(
-            Q(role=get_user_model().Role.TUTOR) | Q(group_leader=getattr(self.instance, 'group', -1)))
+            Q(role=get_user_model().Role.TUTOR) | Q(group_leader=getattr(self.instance, 'group', -1))).order_by(
+            'second_name', 'first_name')
         self.fields['admins'].initial = getattr(self.instance, 'admins', None)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         admins = list(self.cleaned_data['admins'].values_list('pk', flat=True))
-        if admins:
-            if instance.director.pk not in admins:
-                admins.append(instance.director.pk)
-            instance.admins = admins
+        if instance.director.pk not in admins:
+            admins.append(instance.director.pk)
+        instance.admins = admins
         instance = super().save(commit=commit)
         return instance
 
@@ -190,21 +204,28 @@ class UserPracticeUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
+        is_allowed = kwargs.pop('is_allowed', True)
         super().__init__(*args, **kwargs)
         data = getattr(self.instance, 'data', None)
         practice = getattr(self.instance, 'practice', None)
-        fields = PracticePole.objects.filter(practice=practice, is_active=True).select_related('pole').values_list('pole__name', flat=True)
+        fields = PracticePole.objects.filter(practice=practice, is_active=True).select_related('pole').values_list(
+            'pole__name', flat=True)
+        attr = {}
+        if not is_allowed:
+            attr = {'readonly': 'readonly'}
         for field in fields:
             self.fields[field] = forms.CharField(
                 label=field,
                 max_length=100,
                 required=False,
+                widget=forms.TextInput(attrs=attr),
             )
             self.fields[field].initial = data.get(field, '')
 
     def save(self, commit=True):
         practice = getattr(self.instance, 'practice_id', None)
-        fields = PracticePole.objects.filter(practice=practice, is_active=True).select_related('pole').values_list('pole__name', flat=True)
+        fields = PracticePole.objects.filter(practice=practice, is_active=True).select_related('pole').values_list(
+            'pole__name', flat=True)
         self.instance.data.update(
             {field: self.cleaned_data[field] for field in fields if field in self.cleaned_data}
         )

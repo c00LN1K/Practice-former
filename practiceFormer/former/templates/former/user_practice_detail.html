@@ -8,7 +8,9 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        {% if is_allowed %}
         <button type="submit">Обновить</button>
+        {% endif %}
     </form>
 {% endif %}
 <br>

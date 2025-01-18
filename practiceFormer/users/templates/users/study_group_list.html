@@ -5,17 +5,21 @@
 
 <h1>Группы</h1>
 {% if not groups %}
-    <p>Ни одной группы пока не создано
-{% else %}
+<p>Ни одной группы пока не создано
+    {% else %}
+<ul>
     {% for group in groups %}
-        <a href="{{ group.get_absolute_url }}">{{ group.name }}</a>
+    <li><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></li>
     {% endfor %}
+</ul>
 {% endif %}
 
+{% if form %}
 <h2>Создать группу</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Создать</button>
 </form>
+{% endif %}
 {% endblock %}

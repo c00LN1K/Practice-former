@@ -4,13 +4,15 @@
 {% block content %}
 
 <h2>Практики для вас</h2>
-    {% if not practices %}
-        <p>Пока нет ни одной практики
+{% if not practices %}
+<p>Пока нет ни одной практики
     {% else %}
-            {% for practice in practices %}
-            <p><a href="{{ practice.get_absolute_url }}">{{ practice.title }}</a></p>
-        {% endfor %}
-    {% endif %}
+<ul>
+    {% for practice in practices %}
+    <li><a href="{{ practice.get_absolute_url }}">{{ practice.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 {% if is_tutor %}
 <h2>Создать практику</h2>
